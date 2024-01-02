@@ -2,7 +2,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
-import path from 'path';
 import { Server } from 'socket.io';
 
 import { dbConnection } from './core/dbConnection';
@@ -13,28 +12,24 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-
-const allowedOrigins = [
-  'http://localhost:5174',
-  'http://localhost:5173',
-];
-const corsOptions = {
-  origin: (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void,
-  ) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-};
+// const allowedOrigins = ['http://localhost:5174', 'http://localhost:5173'];
+// const corsOptions = {
+//   origin: (
+//     origin: string | undefined,
+//     callback: (err: Error | null, allow?: boolean) => void,
+//   ) => {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+// };
 
 const httpServer = http.createServer(app);
 export const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: '*',
   },
 });
 
@@ -42,7 +37,7 @@ io.on('connection', () => {
   console.log('A user connected');
 });
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use('/topic', topicsRouter);
 
