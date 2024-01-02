@@ -12,31 +12,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(express.static(path.resolve(__dirname, '../../client/dist')));
 
-const httpServer = http.createServer(app);
-export const io = new Server(httpServer, {
-  cors: {
-    origin: '*',
-  },
-});
-// const sendData = async (topic: string, mess: any) => {
-//   io.emit(topic, mess);
-// };
-
-// io.on('connection', () => {
-//   console.log('A user connected');
-
-//   setInterval(() => {
-//     sendData('mqttMessage', new Date());
-//   }, 1000); // Emit every second (1000 milliseconds)
-// });
-
-// io.on('connection', () => {
-//   mqttController.setupMqtt(io);
-// });
-
-httpServer.listen(4000);
 
 const allowedOrigins = [
   'http://localhost:5174',
@@ -56,6 +32,17 @@ const corsOptions = {
   },
 };
 
+const httpServer = http.createServer(app);
+export const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+  },
+});
+
+io.on('connection', () => {
+  console.log('A user connected');
+});
+
 app.use(cors(corsOptions));
 
 app.use('/topic', topicsRouter);
@@ -63,6 +50,20 @@ app.use('/topic', topicsRouter);
 mqttController.setupMqtt(io);
 
 dbConnection();
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+
+httpServer.listen(port, () => {
+  console.log(`Server & socketio is running on port ${port}`);
 });
+
+// httpServer.listen(port, () => {
+//   console.log('socket io lisining on 3000');
+// });
+
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
+// });
+
+// +>>>> both of the above lines must not exist
+
+// here i had an error as when connecting sockt io with express server both are connected and both are now httpServer and linstingng at the same port
+// im not treet them individually as both are now the same
